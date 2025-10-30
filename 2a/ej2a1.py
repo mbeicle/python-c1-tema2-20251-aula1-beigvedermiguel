@@ -32,10 +32,24 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         # 1. Verifica la ruta solicitada (self.path)
         # 2. Si la ruta es "/", envía una respuesta 200 con el mensaje "¡Hola mundo!"
         # 3. Si la ruta es cualquier otra, envía una respuesta 404
-        pass
+        if self.path == '/':
+            # Configuramos la respuesta
+            self.send_response(200)  # Código HTTP 200 OK
+            self.send_header("Content-type", "text/plain")
+            self.end_headers()
+
+            # Enviamos mensaje
+            self.wfile.write(b"Hola mundo!")
+        else:
+            # Para otras rutas (error 404)
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+
+            self.wfile.write(b"Ruta no encontrada.")
 
 
-def create_server(host="localhost", port=8000):
+def create_server(host="localhost", port=8888):
     """
     Crea y configura el servidor HTTP
     """
@@ -47,8 +61,12 @@ def run_server(server):
     """
     Inicia el servidor HTTP
     """
-    print(f"Servidor iniciado en http://{server.server_name}:{server.server_port}")
-    server.serve_forever()
+    print(f"Servidor iniciado en http://{server.server_address[0]}:{server.server_port}")
+    try:
+        server.serve_forever()
+    except:
+        print('Servidor detenido por el usuario.')
+        server.server_close()
 
 if __name__ == '__main__':
     server = create_server()
