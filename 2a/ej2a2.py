@@ -47,9 +47,51 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         # 3. Busca el producto en la lista
         # 4. Si el producto existe, devuélvelo en formato JSON con código 200
         # 5. Si el producto no existe, devuelve un mensaje de error con código 404
-        pass
 
-def create_server(host="localhost", port=8000):
+        def busca_prod(self):
+            id_str = re.search(r'\d+', self.path)
+            if id_str != None:
+                return id_str.group(0)
+            else:
+                return
+
+        id = busca_prod(self)
+        if id != None:
+            ruta = '/product/' + id
+        else:
+            ruta = ''
+        if self.path == ruta:
+            if int(id) <= 3:
+                for product in products:
+                    if int(id) == product['id']:
+                        # Configuramos la respuesta
+                        self.send_response(200)  # Código HTTP 200 OK
+                        self.send_header("Content-type", "application/json")
+                        self.end_headers()
+
+                        product_info = {
+                            "id": product['id'],
+                            "name": product['name'],
+                            "price": product['price']
+                        }
+
+                        # Enviamos mensaje
+                        self.wfile.write(json.dumps(product_info, indent=4).encode('utf-8'))
+            else:
+                # Si el producto no existe (error 404)
+                self.send_response(404)
+                self.send_header("Content-Type", "text/plain")
+                self.end_headers()
+                self.wfile.write(b"Producto no encontrado.")
+        else:
+            # Para otras rutas (error 404)
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+
+            self.wfile.write(b"Ruta no encontrada. Error 404.")
+
+def create_server(host="localhost", port=8889):
     """
     Crea y configura el servidor HTTP
     """
@@ -61,8 +103,12 @@ def run_server(server):
     """
     Inicia el servidor HTTP
     """
-    print(f"Servidor iniciado en http://{server.server_name}:{server.server_port}")
-    server.serve_forever()
+    print(f"Servidor iniciado en http://{server.server_address[0]}:{server.server_port}")
+    try:
+        server.serve_forever()
+    except:
+        print('Servidor detenido por el usuario.')
+        server.server_close()
 
 if __name__ == '__main__':
     server = create_server()
