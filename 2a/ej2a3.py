@@ -67,9 +67,70 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         #    a. Convierte el producto a XML usando dict_to_xml y prettify
         #    b. Devuelve el XML con código 200 y Content-Type application/xml
         # 5. Si el producto no existe, devuelve un mensaje de error XML con código 404
-        pass
+        def busca_prod(self):
+            id_str = re.search(r'\d+', self.path)
+            if id_str != None:
+                return id_str.group(0)
+            else:
+                return
 
-def create_server(host="localhost", port=8000):
+        id = busca_prod(self)
+        if id != None:
+            ruta = '/product/' + id
+        else:
+            ruta = ''
+        if self.path == ruta:
+            if int(id) <= 3:
+                for product in products:
+                    if int(id) == product['id']:
+                        # Configuramos la respuesta
+                        self.send_response(200)  # Código HTTP 200 OK
+                        self.send_header("Content-type", "application/xml")
+                        self.end_headers()
+                        # creamos el diccionario con los datos del producto solicitado
+                        product_info = {
+                            'id': product['id'],
+                            'name': product['name'],
+                            'price': product['price']
+                        }
+                        # Creamos el elemento raíz y convertimos el diccionario
+                        elem = dict_to_xml('product', product_info)
+                        product_xml = prettify(elem)
+
+                        # Enviamos mensaje
+                        self.wfile.write(product_xml)
+            else:
+                # Si el producto no existe (error 404)
+                self.send_response(404)
+                self.send_header("Content-Type", "application/xml")
+                self.end_headers()
+                # creamos el diccionario con el mensaje de error
+                product_error = {
+                        'code': '404',
+                        'error': 'Product not found'
+                    }
+                # Creamos el elemento raíz y convertimos el diccionario
+                elem = dict_to_xml('error', product_error)
+                product_error_xml = prettify(elem)
+                # Enviamos mensaje
+                self.wfile.write(product_error_xml)
+        else:
+            # Para otras rutas (error 404)
+            self.send_response(404)
+            self.send_header("Content-Type", "application/xml")
+            self.end_headers()
+            # creamos el diccionario con el mensaje de error
+            route_error = {
+                    'code': '404',
+                    'error': 'Not found'
+                }
+            # Creamos el elemento raíz y convertimos el diccionario
+            elem = dict_to_xml('error', route_error)
+            route_error_xml = prettify(elem)
+            # Enviamos mensaje
+            self.wfile.write(route_error_xml)
+
+def create_server(host="localhost", port=8890):
     """
     Crea y configura el servidor HTTP
     """
@@ -81,8 +142,12 @@ def run_server(server):
     """
     Inicia el servidor HTTP
     """
-    print(f"Servidor iniciado en http://{server.server_name}:{server.server_port}")
-    server.serve_forever()
+    print(f"Servidor iniciado en http://{server.server_address[0]}:{server.server_port}")
+    try:
+        server.serve_forever()
+    except:
+        print('Servidor detenido por el usuario.')
+        server.server_close()
 
 if __name__ == '__main__':
     server = create_server()
