@@ -22,9 +22,14 @@ def create_app():
     app = Flask(__name__)
 
     # Aquí debes implementar el endpoint solicitado
+    @app.route('/', methods=['GET'])
+    def saludo():
+        # La función devuelve el texto que se mostrará en el navegador.
+        return '¡Hola mundo!'
 
     return app
 
+# Inicia el servidor
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
