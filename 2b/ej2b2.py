@@ -22,6 +22,24 @@ def create_app():
 
     # Aquí debes implementar los endpoints solicitados
 
+    # endpoint 'saludo'
+    @app.route('/hello', methods=['GET'])
+    def saludo():
+        # La función devuelve el texto que se mostrará en el navegador.
+        return '¡Hola mundo!'
+
+    # endpoint 'adiós'
+    @app.route('/goodbye', methods=['GET'])
+    def despedida():
+        # La función devuelve el texto que se mostrará en el navegador.
+        return '¡Adiós mundo!'
+
+    # endpoint 'greet'
+    @app.route('/greet/<nombre>', methods=['GET'])
+    def saludo_nombre(nombre):
+        # La función devuelve el texto que se mostrará en el navegador.
+        return f'¡Hola, {nombre}!'
+
     return app
 
 if __name__ == '__main__':
