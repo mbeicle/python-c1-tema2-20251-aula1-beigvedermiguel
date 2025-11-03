@@ -61,28 +61,28 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         else:
             ruta = ''
         if self.path == ruta:
-            if int(id) <= 3:
-                for product in products:
-                    if int(id) == product['id']:
-                        # Configuramos la respuesta
-                        self.send_response(200)  # Código HTTP 200 OK
-                        self.send_header("Content-type", "application/json")
-                        self.end_headers()
+            for product in products:
+                if int(id) == product['id']:
+                    # Configuramos la respuesta
+                    self.send_response(200)  # Código HTTP 200 OK
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
 
-                        product_info = {
-                            "id": product['id'],
-                            "name": product['name'],
-                            "price": product['price']
-                        }
+                    product_info = {
+                        "id": product['id'],
+                        "name": product['name'],
+                        "price": product['price']
+                    }
 
-                        # Enviamos mensaje
-                        self.wfile.write(json.dumps(product_info, indent=4).encode('utf-8'))
-            else:
-                # Si el producto no existe (error 404)
-                self.send_response(404)
-                self.send_header("Content-Type", "text/plain")
-                self.end_headers()
-                self.wfile.write(b"Producto no encontrado.")
+                    # Enviamos mensaje
+                    self.wfile.write(json.dumps(product_info, indent=4).encode('utf-8'))
+                    return
+            
+            # Si el producto no existe (error 404)
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"Producto no encontrado.")
         else:
             # Para otras rutas (error 404)
             self.send_response(404)

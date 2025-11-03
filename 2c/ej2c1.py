@@ -51,8 +51,13 @@ def create_app():
         - Si no existe: devuelve un error con código 404 (Not Found)
         """
         # Implementa este endpoint
-        pass
-
+        # Buscamos <product_id> en la lista
+        for product in products:
+            if product_id in product.values():
+                return jsonify(product), 200
+            
+        # Si no se encuentra, devolvemos un error 404.
+        return jsonify({'error': 'Producto no encontrado.'}), 404
 
     return app
 
