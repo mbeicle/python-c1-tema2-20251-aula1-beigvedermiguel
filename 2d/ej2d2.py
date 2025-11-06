@@ -29,7 +29,7 @@ def create_app():
     """
     app = Flask(__name__)
 
-    @app.route('/resource/<int:resource_id>', methods=['GET'])
+    @app.route('/resource/<resource_id>', methods=['GET'])
     def get_resource(resource_id):
         """
         Devuelve información sobre un recurso según su ID.
@@ -38,7 +38,19 @@ def create_app():
         - Si el ID es > 100: abort con código 404 (Not Found)
         """
         # Implementa este endpoint utilizando abort() según las condiciones
-        pass
+        # Comprobamos si se ha introducido el 'resource_id
+        if resource_id:
+            resource_id = int(resource_id)
+            # Tratamos los códigos
+            if resource_id <= 0:
+                abort(400)                  # Bad Request
+            elif resource_id > 100:
+                abort(404)                  # Not Found
+            else:
+                return jsonify({'message': f'Se ha accedido con exito al recurso: {resource_id}'}), 200
+        # Si no se ha introducido el 'resource_id'
+        return jsonify({'message': 'Debe proporcionar un recurso'})
+
 
     @app.route('/admin', methods=['GET'])
     def admin():
@@ -49,7 +61,16 @@ def create_app():
         - Si la clave no es 'secret123': abort con código 403 (Forbidden)
         """
         # Implementa este endpoint utilizando abort() según las condiciones
-        pass
+        # Se recupera el 'key'
+        key = request.args.get('key')
+        # Si se ha introducido, tratamos el acceso
+        if key:
+            if key == 'secret123':
+                return jsonify({'message': 'Acceso permitido.'}), 200
+            abort(403)      # Forbidden
+        # Si no se ha introducido
+        abort(401)          # Unauthorized
+
 
     return app
 

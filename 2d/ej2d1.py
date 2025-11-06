@@ -18,7 +18,7 @@ Esta actividad te enseñará a utilizar el sistema de registro de Flask,
 una habilidad crucial para el desarrollo y depuración de aplicaciones web.
 """
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, Response
 
 def create_app():
     """
@@ -37,7 +37,8 @@ def create_app():
         # Implementa este endpoint:
         # 1. Registra un mensaje de nivel INFO usando app.logger.info()
         # 2. Devuelve un mensaje en texto plano indicando que se ha registrado el mensaje
-        pass
+        log = app.logger.info('Mensaje de nivel INFO')
+        return Response(log, mimetype='text/plain')
 
     @app.route('/warning', methods=['GET'])
     def log_warning():
@@ -47,7 +48,8 @@ def create_app():
         # Implementa este endpoint:
         # 1. Registra un mensaje de nivel WARNING usando app.logger.warning()
         # 2. Devuelve un mensaje en texto plano indicando que se ha registrado el mensaje
-        pass
+        log = app.logger.warning('Mensaje de nivel WARNING')
+        return Response(log, mimetype='text/plain')
 
     @app.route('/error', methods=['GET'])
     def log_error():
@@ -57,7 +59,8 @@ def create_app():
         # Implementa este endpoint:
         # 1. Registra un mensaje de nivel ERROR usando app.logger.error()
         # 2. Devuelve un mensaje en texto plano indicando que se ha registrado el mensaje
-        pass
+        log = app.logger.error('Mensaje de nivel ERROR')
+        return Response(log, mimetype='text/plain')
 
     @app.route('/critical', methods=['GET'])
     def log_critical():
@@ -67,7 +70,8 @@ def create_app():
         # Implementa este endpoint:
         # 1. Registra un mensaje de nivel CRITICAL usando app.logger.critical()
         # 2. Devuelve un mensaje en texto plano indicando que se ha registrado el mensaje
-        pass
+        log = app.logger.critical('Mensaje de nivel CRITICAL')
+        return Response(log, mimetype='text/plain')
 
     @app.route('/status', methods=['GET'])
     def status():
@@ -77,7 +81,20 @@ def create_app():
         """
         # Este endpoint es opcional, puedes implementarlo si quieres practicar
         # con parámetros de consulta y logging condicional
-        pass
+        # Obtenemos el valor del parámetro 'level'
+        level = request.args.get('level')
+
+        if level:
+            # Filtra la lista de productos si se proporciona una categoría en el query
+            if level == 'info':
+                return 'Se ha registrado un mensaje de nivel INFO', 200
+            elif level == 'warning':
+                return 'Se ha registrado un mensaje de nivel WARNING', 200
+            elif level == 'error':
+                return 'Se ha registrado un mensaje de nivel ERROR', 200
+            elif level == 'critical':
+                return 'Se ha registrado un mensaje de nivel CRITICAL', 200
+        return 'Debes proporcionar un valor para el parámetro "level".'
 
     return app
 
