@@ -76,21 +76,18 @@ def create_app():
         if category:
             # Filtra la lista de productos si se proporciona una categoría en el query
             productos_filtrados = [product for product in productos_filtrados if product['category'] == category]
-            #return jsonify(productos_filtrados), 200
 
         if min_price:
             # Convertimos a float si existen, si no, mantener None
             min_price = float(min_price) if min_price is not None else None
             # Filtra la lista de productos si se proporciona un min_price en el query
             productos_filtrados = [product for product in productos_filtrados if product['price'] >= min_price]
-            #return jsonify(productos_filtrados), 200
 
         if max_price:
             # Convertimos a float si existen, si no, mantener None
             max_price = float(max_price) if max_price is not None else None
             # Filtra la lista de productos si se proporciona un max_price en el query
             productos_filtrados = [product for product in productos_filtrados if product['price'] <= max_price]
-            #return jsonify(productos_filtrados), 200
 
         if name:
             # Convertimos 'name' a minúsculas, si existe, si no, mantener None

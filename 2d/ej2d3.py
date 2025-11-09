@@ -64,7 +64,8 @@ def create_app():
         # Implementa este manejador de errores
         # 1. Registra el error usando app.logger.warning() con un mensaje descriptivo
         # 2. Devuelve un JSON con un mensaje descriptivo y el código de estado 400
-        pass
+        log = app.logger.warning('Error 400. Bad Request. Mensaje de nivel WARNING')
+        return jsonify({'error': 'Solicitud incorrecta', 'message': str(error)}), 400
 
     # Manejador de errores 404 - Not Found
     @app.errorhandler(404)
@@ -76,7 +77,9 @@ def create_app():
         # Implementa este manejador de errores
         # 1. Registra el error usando app.logger.info() con un mensaje descriptivo
         # 2. Devuelve un JSON con un mensaje descriptivo y el código de estado 404
-        pass
+        # Se registra un mensaje de error a nivel INFO en el log de la aplicación
+        log = app.logger.info('404 Not Found. Recurso no encontrado. Mensaje de nivel INFO')
+        return jsonify({'error': 'Recurso no encontrado','message': str(error)}), 404
 
     # Manejador de errores 405 - Method Not Allowed
     @app.errorhandler(405)
@@ -88,7 +91,8 @@ def create_app():
         # Implementa este manejador de errores
         # 1. Registra el error usando app.logger.warning() con un mensaje descriptivo
         # 2. Devuelve un JSON con un mensaje descriptivo y el código de estado 405
-        pass
+        log = app.logger.warning('Error 405. Recurso no permitido. Mensaje de nivel WARNING')
+        return jsonify({'error': 'Recurso no permitido','message': str(error)}), 405
 
     # Manejador de errores 500 - Internal Server Error
     @app.errorhandler(500)
@@ -101,7 +105,8 @@ def create_app():
         # 1. Registra el error usando app.logger.error() con los detalles del error
         # 2. Incluye información adicional como la ruta que causó el error utilizando request.path
         # 3. Devuelve un JSON con un mensaje descriptivo y el código de estado 500
-        pass
+        log = app.logger.error('Error 500. Internal Server Error. Mensaje de nivel ERROR')
+        return jsonify({'message': 'Internal Server Error' ,'message': str(error)}), 500
 
     @app.route('/animals', methods=['GET'])
     def get_animals():
@@ -109,7 +114,7 @@ def create_app():
         Devuelve la lista completa de animales
         """
         # Implementa este endpoint para devolver la lista de animales
-        pass
+        return jsonify(animals), 200
 
     @app.route('/animals/<int:animal_id>', methods=['GET'])
     def get_animal(animal_id):
@@ -117,11 +122,12 @@ def create_app():
         Devuelve la información de un animal específico por su ID
         Si el animal no existe, debe activar un error 404
         """
-        animal = next((a for a in animals if a['id'] == animal_id), None)
-        if animal is None:
-            # Si el animal no existe, usa abort(404) para lanzar un error 404
-            abort(404)
-        return jsonify(animal)
+        animal = next((animal for animal in animals if animal['id'] == animal_id), None)
+        if animal:
+            return jsonify(animal), 200
+
+        # Si el animal no existe, se detiene la ejecución y se lanza un error 404
+        abort(404, description="El animal solicitado no existe")
 
     @app.route('/animals', methods=['POST'])
     def add_animal():
@@ -135,7 +141,37 @@ def create_app():
         # 2. Verifica que los campos "name" y "species" estén presentes
         # 3. Si falta algún campo, usa abort(400) para lanzar un error
         # 4. Si todo está correcto, agrega el nuevo animal a la lista y devuelve una respuesta adecuada (código 201)
-        pass
+
+        # Verificamos si la solicitud tiene datos en formato JSON
+        if not request.is_json:
+        # Abort(400) Bad Request
+            abort(400, description="La solicitud se debe hacer en formato JSON")
+        # Recuperamos el cuerpo de la solicitud
+        data = request.get_json()
+        # Comprobamos si falta algún dato
+        if data:
+            if 'name' not in data:
+                # Abort(400) Bad Request
+                abort(400, description="El campo 'name' es obligatorio en la solicitud")
+            if 'species' not in data:
+                # Abort(400) Bad Request
+                abort(400, description="El campo 'species' es obligatorio en la solicitud")
+        # Comprobamos si el animal ya existe
+        if 'name' in data:
+            for animal in animals:
+                if animal['name'] == data['name']:
+                    # Abort(400) Bad Request
+                    abort(400, description="El animal que se quiere añadir, ya existe")
+
+        # Si todo es OK, añadimos el 'id' al nuevo animal
+        data['id'] = next_id
+        # Agregamos el nuevo animal a la lista
+        animals.append(data)
+        return jsonify({f'message': 'Animal añadido con éxito',
+                        'id':data['id'],
+                        'name':data['name'],
+                        'species':data['species']
+                        }), 201
 
     @app.route('/animals/<int:animal_id>', methods=['DELETE'])
     def delete_animal(animal_id):
@@ -147,7 +183,20 @@ def create_app():
         # 1. Verifica si el animal existe
         # 2. Si no existe, usa abort(404) para lanzar un error 404
         # 3. Si existe, elimínalo de la lista y devuelve una respuesta adecuada
-        pass
+
+        animal_encontrado = None
+        # Buscamos el animal en la lista por su 'id'
+        for animal in animals:
+            if animal['id'] == animal_id:
+                animal_encontrado = animal
+                break
+        # Si existe, lo borramos de la lista
+        if animal_encontrado:
+            animals.remove(animal_encontrado)
+            return jsonify({'message': 'Animal eliminado con éxito'}), 204
+        # Si no existe, abort(404)
+        else:
+            abort(404, description="El animal que se quiere borrar no existe")
 
     # Endpoint adicional que lanza un error 500 para probar el manejador
     @app.route('/test-error', methods=['GET'])
