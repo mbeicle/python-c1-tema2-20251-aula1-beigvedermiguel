@@ -39,17 +39,17 @@ def create_app():
         """
         # Implementa este endpoint utilizando abort() según las condiciones
         # Comprobamos si se ha introducido el 'resource_id
-        if resource_id:
-            resource_id = int(resource_id)
-            # Tratamos los códigos
-            if resource_id <= 0:
-                abort(400)                  # Bad Request
-            elif resource_id > 100:
-                abort(404)                  # Not Found
-            else:
-                return jsonify({'message': f'Se ha accedido con exito al recurso: {resource_id}'}), 200
-        # Si no se ha introducido el 'resource_id'
-        return jsonify({'message': 'Debe proporcionar un recurso'})
+        if not resource_id:
+            return jsonify({'message': 'Debe proporcionar un recurso'})
+        # Recuperamos el dato y lo convertimos a 'int'
+        resource_id = int(resource_id)
+        # Tratamos los códigos
+        if resource_id <= 0:
+            abort(400)                  # Bad Request
+        elif resource_id > 100:
+            abort(404)                  # Not Found
+
+        return jsonify({'message': f'Se ha accedido con exito al recurso: {resource_id}'}), 200
 
 
     @app.route('/admin', methods=['GET'])
@@ -63,14 +63,14 @@ def create_app():
         # Implementa este endpoint utilizando abort() según las condiciones
         # Se recupera el 'key'
         key = request.args.get('key')
-        # Si se ha introducido, tratamos el acceso
-        if key:
-            if key == 'secret123':
-                return jsonify({'message': 'Acceso permitido.'}), 200
-            abort(403)      # Forbidden
         # Si no se ha introducido
-        abort(401)          # Unauthorized
+        if not key:
+            abort(401)          # Unauthorized
+        # Si el key es erróneo
+        if key != 'secret123':
+            abort(403)          # Forbidden
 
+        return jsonify({'message': 'Acceso permitido.'}), 200
 
     return app
 
