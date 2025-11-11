@@ -45,13 +45,20 @@ def create_app():
     """
     app = Flask(__name__)
 
+    # Crear un directorio, si no existe, para guardar el archivo
+    uploads_dir = os.path.join(app.instance_path, 'uploads')
+    os.makedirs(uploads_dir, exist_ok=True)
+
     @app.route('/text', methods=['GET'])
     def get_text():
         """
         Devuelve un texto plano con el tipo MIME `text/plain`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        text_data = "Este es un texto plano"
+        response = make_response(text_data, 200)
+        response.headers['Content-Type'] = 'text/plain'
+        return response
 
     @app.route('/html', methods=['GET'])
     def get_html():
@@ -59,7 +66,10 @@ def create_app():
         Devuelve un fragmento HTML con el tipo MIME `text/html`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        html_data = "<h1>Este es un fragmento HTML</h1>"
+        response = make_response(html_data, 200)
+        response.headers['Content-Type'] = 'text/html'
+        return response
 
     @app.route('/json', methods=['GET'])
     def get_json():
@@ -67,7 +77,10 @@ def create_app():
         Devuelve un objeto JSON con el tipo MIME `application/json`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        json_data = {"mensaje": "Este es un objeto JSON"}
+        response = make_response(jsonify(json_data), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     @app.route('/xml', methods=['GET'])
     def get_xml():
@@ -75,7 +88,10 @@ def create_app():
         Devuelve un documento XML con el tipo MIME `application/xml`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        xml_data = "<mensaje>Este es un documento XML</mensaje>"
+        response = make_response(xml_data, 200)
+        response.headers['Content-Type'] = 'application/xml'
+        return response
 
     @app.route('/image', methods=['GET'])
     def get_image():
@@ -84,7 +100,16 @@ def create_app():
         """
         # Implementa este endpoint para devolver el contenido solicitado
         # Sugerencia: Puedes usar send_file para enviar una imagen
-        pass
+        # Guardar la imagen en un objeto BytesIO en formato PNG
+
+        # Recuperamos la imagen desde un fichero 'png'
+        ruta = os.path.join(uploads_dir, 'imagen.png')
+        with open(ruta, 'rb') as f:
+            image_binary = f.read()
+
+        response = make_response(image_binary)
+        response.headers['Content-Type'] = 'image/png'
+        return response
 
     @app.route('/binary', methods=['GET'])
     def get_binary():
@@ -94,7 +119,13 @@ def create_app():
         """
         # Implementa este endpoint para devolver el contenido solicitado
         # Sugerencia: Puedes usar os.urandom() para generar datos aleatorios
-        pass
+
+        # Generamos 8 bytes aleatorios
+        binary_data = os.urandom(8)
+        response = make_response(binary_data)
+        response.headers['Content-Type'] = 'application/octet-stream'
+        response.headers['Content-Disposition'] = 'attachment'
+        return response
 
     return app
 
