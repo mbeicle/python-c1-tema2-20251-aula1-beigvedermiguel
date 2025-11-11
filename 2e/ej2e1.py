@@ -118,7 +118,7 @@ def create_app():
         #    - Para texto plano: usa request.data
         # 3. Devuelve los mismos datos con el mismo tipo de contenido
         
-        # Averiguamos e tipo de contenido
+        # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es JSON
         if contenido == 'application/json':

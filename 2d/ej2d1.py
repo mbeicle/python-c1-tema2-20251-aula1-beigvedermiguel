@@ -84,17 +84,22 @@ def create_app():
         # Obtenemos el valor del parámetro 'level'
         level = request.args.get('level')
 
-        if level:
-            # Filtra la lista de productos si se proporciona una categoría en el query
-            if level == 'info':
-                return 'Se ha registrado un mensaje de nivel INFO', 200
-            elif level == 'warning':
-                return 'Se ha registrado un mensaje de nivel WARNING', 200
-            elif level == 'error':
-                return 'Se ha registrado un mensaje de nivel ERROR', 200
-            elif level == 'critical':
-                return 'Se ha registrado un mensaje de nivel CRITICAL', 200
-        return 'Debes proporcionar un valor para el parámetro "level".'
+        if not level:
+            return 'Debes proporcionar un valor para el parámetro "level".'
+
+        # Filtra la respuesta según el valor de 'level'
+        if level == 'info':
+            log = app.logger.info('Mensaje de nivel INFO')
+            return Response(log, mimetype='text/plain')
+        elif level == 'warning':
+            log = app.logger.warning('Mensaje de nivel WARNING')
+            return Response(log, mimetype='text/plain')
+        elif level == 'error':
+            log = app.logger.error('Mensaje de nivel ERROR')
+            return Response(log, mimetype='text/plain')
+        elif level == 'critical':
+            log = app.logger.critical('Mensaje de nivel CRITICAL')
+            return Response(log, mimetype='text/plain')
 
     return app
 
