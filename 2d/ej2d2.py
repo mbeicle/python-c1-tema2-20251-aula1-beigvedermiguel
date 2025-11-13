@@ -49,7 +49,7 @@ def create_app():
         elif resource_id > 100:
             abort(404)                  # Not Found
 
-        return jsonify({'message': f'Se ha accedido con exito al recurso: {resource_id}'}), 200
+        return jsonify({'message': f'Se ha accedido al recurso: {resource_id}'}), 200
 
 
     @app.route('/admin', methods=['GET'])

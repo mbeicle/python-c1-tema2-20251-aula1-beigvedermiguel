@@ -64,7 +64,7 @@ def create_app():
         # Implementa este manejador de errores
         # 1. Registra el error usando app.logger.warning() con un mensaje descriptivo
         # 2. Devuelve un JSON con un mensaje descriptivo y el código de estado 400
-        log = app.logger.warning('Error 400. Bad Request. Mensaje de nivel WARNING')
+        log = app.logger.warning(f'Bad Request: {str(error)}')
         return jsonify({'error': 'Solicitud incorrecta', 'message': str(error)}), 400
 
     # Manejador de errores 404 - Not Found
@@ -78,7 +78,7 @@ def create_app():
         # 1. Registra el error usando app.logger.info() con un mensaje descriptivo
         # 2. Devuelve un JSON con un mensaje descriptivo y el código de estado 404
         # Se registra un mensaje de error a nivel INFO en el log de la aplicación
-        log = app.logger.info('404 Not Found. Recurso no encontrado. Mensaje de nivel INFO')
+        log = app.logger.info(f'Recurso no encontrado: {request.path}')
         return jsonify({'error': 'Recurso no encontrado','message': str(error)}), 404
 
     # Manejador de errores 405 - Method Not Allowed
@@ -91,8 +91,8 @@ def create_app():
         # Implementa este manejador de errores
         # 1. Registra el error usando app.logger.warning() con un mensaje descriptivo
         # 2. Devuelve un JSON con un mensaje descriptivo y el código de estado 405
-        log = app.logger.warning('Error 405. Recurso no permitido. Mensaje de nivel WARNING')
-        return jsonify({'error': 'Recurso no permitido','message': str(error)}), 405
+        log = app.logger.warning(f'Método {request.method} no permitido')
+        return jsonify({'error': 'Método no permitido','message': str(error)}), 405
 
     # Manejador de errores 500 - Internal Server Error
     @app.errorhandler(500)
@@ -105,7 +105,7 @@ def create_app():
         # 1. Registra el error usando app.logger.error() con los detalles del error
         # 2. Incluye información adicional como la ruta que causó el error utilizando request.path
         # 3. Devuelve un JSON con un mensaje descriptivo y el código de estado 500
-        log = app.logger.error('Error 500. Internal Server Error. Mensaje de nivel ERROR')
+        log = app.logger.error(f'Internal Server Error {request.path}: {str(error)}')
         return jsonify({'message': 'Internal Server Error' ,'message': str(error)}), 500
 
     @app.route('/animals', methods=['GET'])
@@ -114,7 +114,7 @@ def create_app():
         Devuelve la lista completa de animales
         """
         # Implementa este endpoint para devolver la lista de animales
-        return jsonify(animals), 200
+        return jsonify(animals)
 
     @app.route('/animals/<int:animal_id>', methods=['GET'])
     def get_animal(animal_id):
@@ -124,7 +124,7 @@ def create_app():
         """
         animal = next((animal for animal in animals if animal['id'] == animal_id), None)
         if animal:
-            return jsonify(animal), 200
+            return jsonify(animal)
 
         # Si el animal no existe, se detiene la ejecución y se lanza un error 404
         abort(404, description="El animal solicitado no existe")
@@ -141,21 +141,17 @@ def create_app():
         # 2. Verifica que los campos "name" y "species" estén presentes
         # 3. Si falta algún campo, usa abort(400) para lanzar un error
         # 4. Si todo está correcto, agrega el nuevo animal a la lista y devuelve una respuesta adecuada (código 201)
+        global next_id
 
         # Verificamos si la solicitud tiene datos en formato JSON
         if not request.is_json:
         # Abort(400) Bad Request
-            abort(400, description="La solicitud se debe hacer en formato JSON")
+            abort(400, description="La solicitud debe tener formato JSON")
         # Recuperamos el cuerpo de la solicitud
         data = request.get_json()
         # Comprobamos si falta algún dato
-        if data:
-            if 'name' not in data:
-                # Abort(400) Bad Request
-                abort(400, description="El campo 'name' es obligatorio en la solicitud")
-            if 'species' not in data:
-                # Abort(400) Bad Request
-                abort(400, description="El campo 'species' es obligatorio en la solicitud")
+        if not data or 'name' not in data or 'species' not in data:
+            abort(400)
         # Comprobamos si el animal ya existe
         if 'name' in data:
             for animal in animals:
@@ -167,6 +163,7 @@ def create_app():
         data['id'] = next_id
         # Agregamos el nuevo animal a la lista
         animals.append(data)
+        next_id += 1
         return jsonify({f'message': 'Animal añadido con éxito',
                         'id':data['id'],
                         'name':data['name'],

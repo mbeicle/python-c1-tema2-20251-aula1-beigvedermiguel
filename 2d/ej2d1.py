@@ -82,24 +82,12 @@ def create_app():
         # Este endpoint es opcional, puedes implementarlo si quieres practicar
         # con parámetros de consulta y logging condicional
         # Obtenemos el valor del parámetro 'level'
-        level = request.args.get('level')
+        level = request.args.get('level', 'info')
 
-        if not level:
-            return 'Debes proporcionar un valor para el parámetro "level".'
-
-        # Filtra la respuesta según el valor de 'level'
-        if level == 'info':
-            log = app.logger.info('Mensaje de nivel INFO')
-            return Response(log, mimetype='text/plain')
-        elif level == 'warning':
-            log = app.logger.warning('Mensaje de nivel WARNING')
-            return Response(log, mimetype='text/plain')
-        elif level == 'error':
-            log = app.logger.error('Mensaje de nivel ERROR')
-            return Response(log, mimetype='text/plain')
-        elif level == 'critical':
-            log = app.logger.critical('Mensaje de nivel CRITICAL')
-            return Response(log, mimetype='text/plain')
+        if level:
+            log = app.logger.level(f'This is a {level.upper()} message from status endpoint')
+            return f'{level.upper()} message has been logged from status endpoint', 200, {'Content-Type': 'text/plain'}
+        return 'Invalid log level', 400, {'Content-Type': 'text/plain'}
 
     return app
 
