@@ -83,6 +83,7 @@ def create_app():
             browser = "Safari"
         elif re.search(r'Edge', user_agent):
             browser = "Internet Explorer/Edge"
+        
         # El Sist. Operativo
         if re.search(r'Windows', user_agent):
             os = "Windows"
@@ -96,13 +97,14 @@ def create_app():
             os = "Android"
         elif re.search(r'iPhone', user_agent):
             os = "iOS"
+        
         # Si se trata de un dispositivo móvil
         if re.search(r'Mobi', user_agent) or re.search(r'Android', user_agent) or re.search(r'iPhone', user_agent):
             mobile = True
         else:
             mobile = False
     
-        return jsonify({'browser': browser, 'os': os, 'is_mobile': mobile}), 200
+        return jsonify({'browser': browser, 'os': os, 'is_mobile': mobile})
 
     @app.route('/echo', methods=['POST'])
     def echo():
@@ -121,31 +123,24 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es JSON
-        if contenido == 'application/json':
-            # Verificamos si la solicitud tiene datos en formato JSON
-            if not request.is_json:
-                return jsonify({'message' : 'El contenido de la solicitud no es un JSON válido'}), 400
+        if 'application/json' in contenido:
             # Recuperamos el cuerpo de la solicitud
             contenido_json = request.get_json()
-            if not contenido_json:
-                return jsonify({'message' : 'El contenido de la solicitud no es un JSON válido'}), 400
             return contenido_json
 
         # Si el contenido es FORM
-        elif contenido == 'application/x-www-form-urlencoded':
+        elif 'application/x-www-form-urlencoded' in contenido:
             # Recuperamos el cuerpo de la solicitud
             contenido_form = request.form
-            if not contenido_form:
-                return jsonify({'message': 'No se han recibido datos en el formulario'}), 400
             return jsonify(contenido_form), 200
 
         # Si el contenido es TEXTO PLANO
-        elif contenido == 'text/plain':
+        elif 'text/plain' in contenido:
             # Recuperamos el cuerpo de la solicitud
             contenido_text = request.data
-            if not contenido_text:
-                return jsonify({'message': 'No se han recibido datos en la solicitud'}), 400
             return contenido_text
+        
+        return jsonify({'message': 'Content-Type inadecuado'}), 400
 
     @app.route('/validate-id', methods=['POST'])
     def validate_id():
@@ -165,18 +160,13 @@ def create_app():
             return jsonify({'message' : 'El contenido de la solicitud no es un JSON válido'}), 200
         # Recuperamos el cuerpo de la solicitud
         data = request.get_json()
-        if not data:
-            return jsonify({'message' : 'El JSON no tiene contenido válido'}), 200
-        if 'id_number' not in data:
+        if not data or 'id_number' not in data:
             return jsonify({'error': 'La solicitud no contiene el campo ID'}), 400
         # Obtenemos el 'id_number'
         id = data['id_number']
-        if len(id) != 9:
-            valid_id = False
-            return jsonify({'message': 'ID de longitud incorrecta', 'valid': valid_id}), 200
-        if id[:8].isdigit() and id[-1].isalpha():
+        if len(id) == 9 and id[:8].isdigit() and id[-1].isalpha():
             valid_id = True
-            return jsonify({'message': 'ID correcto', 'valid': valid_id}), 200
+            return jsonify({'message': 'ID válido', 'valid': valid_id}), 200
         else:
             valid_id = False
             return jsonify({'message': 'Composición incorrecta del ID', 'valid': valid_id}), 200

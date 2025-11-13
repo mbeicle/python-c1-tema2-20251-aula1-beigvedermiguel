@@ -55,7 +55,7 @@ def create_app():
         Devuelve un texto plano con el tipo MIME `text/plain`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        text_data = "Este es un texto plano"
+        text_data = 'Este es un texto plano'
         response = make_response(text_data, 200)
         response.headers['Content-Type'] = 'text/plain'
         return response
@@ -66,7 +66,7 @@ def create_app():
         Devuelve un fragmento HTML con el tipo MIME `text/html`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        html_data = "<h1>Este es un fragmento HTML</h1>"
+        html_data = '<h1>Este es un fragmento HTML</h1>'
         response = make_response(html_data, 200)
         response.headers['Content-Type'] = 'text/html'
         return response
@@ -77,10 +77,8 @@ def create_app():
         Devuelve un objeto JSON con el tipo MIME `application/json`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        json_data = {"mensaje": "Este es un objeto JSON"}
-        response = make_response(jsonify(json_data), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        json_data = {'mensaje': 'Este es un objeto JSON'}
+        return jsonify(json_data)
 
     @app.route('/xml', methods=['GET'])
     def get_xml():
@@ -88,7 +86,7 @@ def create_app():
         Devuelve un documento XML con el tipo MIME `application/xml`
         """
         # Implementa este endpoint para devolver el contenido solicitado
-        xml_data = "<mensaje>Este es un documento XML</mensaje>"
+        xml_data = '<mensaje>Este es un documento XML</mensaje>'
         response = make_response(xml_data, 200)
         response.headers['Content-Type'] = 'application/xml'
         return response
@@ -106,10 +104,7 @@ def create_app():
         ruta = os.path.join(uploads_dir, 'imagen.png')
         with open(ruta, 'rb') as f:
             image_binary = f.read()
-
-        response = make_response(image_binary)
-        response.headers['Content-Type'] = 'image/png'
-        return response
+        return send_file(ruta, mimetype='image/png')
 
     @app.route('/binary', methods=['GET'])
     def get_binary():
@@ -121,7 +116,7 @@ def create_app():
         # Sugerencia: Puedes usar os.urandom() para generar datos aleatorios
 
         # Generamos 8 bytes aleatorios
-        binary_data = os.urandom(8)
+        binary_data = os.urandom(16)
         response = make_response(binary_data)
         response.headers['Content-Type'] = 'application/octet-stream'
         response.headers['Content-Disposition'] = 'attachment'

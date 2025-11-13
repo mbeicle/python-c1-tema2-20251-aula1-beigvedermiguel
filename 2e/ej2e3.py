@@ -60,12 +60,10 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es text/plain
-        if contenido == 'text/plain':
-            # Recuperamos el cuerpo de la solicitud
-            contenido_text = request.data
-            if not contenido_text:
-                return jsonify({'message': 'No se han recibido datos en la solicitud'}), 400
-            return Response(contenido_text, content_type='text/plain')
+        if 'text/plain' in contenido:
+            return Response(request.data, content_type='text/plain')
+        return jsonify({'error': 'Content-Type debe ser text/plain'}), 400
+            
 
     @app.route('/html', methods=['POST'])
     def post_html():
@@ -80,12 +78,10 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es text/html
-        if contenido == 'text/html':
-            # Recuperamos el cuerpo de la solicitud
-            contenido_html = request.data
-            if not contenido_html:
-                return jsonify({'message': 'No se han recibido datos en la solicitud'}), 400
-            return Response(contenido_html, content_type='text/html')
+        if 'text/html' in contenido:
+            return Response(request.data, content_type='text/html')
+        return jsonify({'error': 'Content-Type debe ser text/html'}), 400
+            
 
     @app.route('/json', methods=['POST'])
     def post_json():
@@ -99,15 +95,9 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es JSON
-        if contenido == 'application/json':
-            # Verificamos si la solicitud tiene datos en formato JSON
-            if not request.is_json:
-                return jsonify({'message' : 'El contenido de la solicitud no es un JSON válido'}), 400
-            # Recuperamos el cuerpo de la solicitud
-            contenido_json = request.get_json()
-            if not contenido_json:
-                return jsonify({'message' : 'El JSON de la solicitud no tiene contenido'}), 400
-            return jsonify(contenido_json)
+        if 'application/json' in contenido:
+            return jsonify(request.get_json())
+        return jsonify({'error': 'Content-Type debe ser application/json'}), 400    
 
     @app.route('/xml', methods=['POST'])
     def post_xml():
@@ -122,12 +112,9 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es application/xml
-        if contenido == 'application/xml':
-            # Recuperamos el cuerpo de la solicitud
-            contenido_xml = request.data
-            if not contenido_xml:
-                return jsonify({'message': 'No se han recibido datos en la solicitud'}), 400
-            return Response(contenido_xml, content_type='application/xml')
+        if 'application/xml' in contenido:
+            return Response(request.data, content_type='application/xml')
+        return jsonify({'error': 'Content-Type debe ser application/xml'}), 400
 
     @app.route('/image', methods=['POST'])
     def post_image():
@@ -143,16 +130,15 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es image/png o image/jpeg
-        if contenido == 'image/png' or contenido == 'image/jpeg':
+        if 'image/png' in contenido or 'image/jpeg' in contenido:
             # Recuperamos el cuerpo de la solicitud
             contenido_img = request.data
-            if not contenido_img:
-                return jsonify({'message': 'No se han recibido datos en la solicitud'}), 400
+
             # Guardamos el archivo en disco
-            ruta = os.path.join(uploads_dir, 'imagen.png')
+            filename = f'image.{request.content_type.split("/")[1]}'
+            ruta = os.path.join(uploads_dir, filename)
             with open(ruta, 'wb') as f:
                 f.write(contenido_img)
-                f.close()
             return jsonify({'mensaje':'Fichero guardado', 'archivo':ruta})
 
     @app.route('/binary', methods=['POST'])
@@ -169,18 +155,13 @@ def create_app():
         # Averiguamos el tipo de contenido
         contenido = request.content_type
         # Si 'content_type' es application/octet-stream
-        if contenido == 'application/octet-stream':
+        if 'application/octet-stream' in contenido:
             # Recuperamos el cuerpo de la solicitud
             contenido_binary = request.data
-            if not contenido_binary:
-                return jsonify({'mensaje': 'No se han recibido datos en la solicitud'}), 400
-            ruta = os.path.join(uploads_dir, 'binary_data.bin') 
-            # Escribimos los datos binarios en un archivo
-            with open(ruta, "wb") as f:
-                f.write(contenido_binary)
             # Vemos el tamaño del fichero
-            size = os.path.getsize(ruta)
+            size = len(request.data)
             return jsonify({'mensaje':'Fichero binario recuperado', 'tamaño':size})
+        return jsonify({'error': 'Content-Type debe ser application/octet-stream'}), 400   
 
     return app
 
