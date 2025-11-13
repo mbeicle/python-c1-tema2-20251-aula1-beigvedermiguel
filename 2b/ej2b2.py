@@ -26,19 +26,19 @@ def create_app():
     @app.route('/hello', methods=['GET'])
     def saludo():
         # La función devuelve el texto que se mostrará en el navegador.
-        return '¡Hola mundo!'
+        return '¡Hola mundo!', 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
     # endpoint 'adiós'
     @app.route('/goodbye', methods=['GET'])
     def despedida():
         # La función devuelve el texto que se mostrará en el navegador.
-        return '¡Adiós mundo!'
+        return '¡Adiós mundo!', 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
     # endpoint 'greet'
     @app.route('/greet/<nombre>', methods=['GET'])
     def saludo_nombre(nombre):
         # La función devuelve el texto que se mostrará en el navegador.
-        return f'¡Hola, {nombre}!'
+        return f'¡Hola, {nombre}!', 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
     return app
 

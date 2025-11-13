@@ -25,7 +25,7 @@ def create_app():
     @app.route('/', methods=['GET'])
     def saludo():
         # La función devuelve el texto que se mostrará en el navegador.
-        return '¡Hola mundo!'
+        return '¡Hola mundo!', 200, {'Content-Type': 'text/plain; charset=utf-8'}
 
     return app
 
