@@ -54,10 +54,9 @@ def create_app():
         # Buscamos <product_id> en la lista
         for product in products:
             if product_id in product.values():
-                return jsonify(product), 200
-            
+                return jsonify(product), 200    
         # Si no se encuentra, devolvemos un error 404.
-        return jsonify({'error': 'Producto no encontrado.'}), 404
+        return jsonify({'error': 'Product not found.'}), 404
 
     return app
 

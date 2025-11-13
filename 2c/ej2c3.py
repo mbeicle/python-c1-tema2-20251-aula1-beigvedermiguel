@@ -41,7 +41,7 @@ products = [
     {"id": 5, "name": "Ergonomic Chair", "price": 189.99, "category": "furniture"},
     {"id": 6, "name": "Coffee Maker Pro", "price": 89.99, "category": "appliances"},
     {"id": 7, "name": "Wireless Headphones", "price": 129.99, "category": "electronics"},
-    {"id": 8, "name": "Smart Watch", "price": 199.99, "category": "electronics"}
+    {"id": 8, "name": "Smart Watch", "price": 199.99, "category": "accesories"}
 ]
 
 def create_app():
@@ -65,7 +65,7 @@ def create_app():
         # 2. Filtra la lista de productos según los parámetros proporcionados
         # 3. Devuelve la lista filtrada en formato JSON con código 200
         
-        productos_filtrados = products
+        productos_filtrados = products.copy()
         # Obtenemos los valores de los parámetros de consulta
         category = request.args.get('category')
         min_price = request.args.get('min_price')

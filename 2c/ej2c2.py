@@ -46,7 +46,7 @@ def create_app():
         Devuelve la lista completa de tareas
         """
         # Implementa este endpoint
-        return tasks
+        return jsonify(tasks)
 
     @app.route('/tasks', methods=['POST'])
     def add_task():
@@ -55,19 +55,22 @@ def create_app():
         El cuerpo de la solicitud debe incluir un JSON con el campo "name"
         """
         # Implementa este endpoint
+        global next_id
+
         # Obtiene los datos JSON del cuerpo de la petición.
         new_task = {'id': next_id}
         new_task.update(request.get_json())
-
+        
         # Valida que los datos existan.
-        if not new_task:
+        if not new_task or 'name' not in new_task:
             return jsonify({'error': 'La solicitud debe contener datos JSON'}), 400
-
+        
         # Agrega la nueva tarea a la lista 'tasks'.
         tasks.append(new_task)
-
+        next_id += 1
+        
         # Devuelve la nueva tarea con el código de estado 201.
-        return jsonify(tasks[next_id - 1]), 201
+        return jsonify(new_task), 201
 
     @app.route('/tasks/<int:task_id>', methods=['DELETE'])
     def delete_task(task_id):
@@ -99,20 +102,22 @@ def create_app():
         Código de estado: 200 - OK si se actualizó, 404 - Not Found si no existe
         """
         # Implementa este endpoint
+        # Se recuperan los datos de la petición
+        datos = request.get_json()
+        if not datos or 'name' not in datos:
+            return jsonify({'error': 'La solicitud debe contener datos JSON'}), 400
+        
         # Primero comprobamos que el id de la tarea exista
         task = next((task for task in tasks if task['id'] == task_id), None)
         if not task:
-            return jsonify({'error': 'Task not found'}), 404
+            return jsonify({'error': 'Task not found'}), 404      
 
-        # Se recuperan los datos de la petición
-        datos = request.get_json()
-        if not datos:
-            return jsonify({'error': 'La solicitud debe contener datos JSON'}), 400
+        # Se actualiza la tarea con los nuevos datos
+        #task.clear()
+        #datos = {'id': next_id, 'name': 'Tarea actualizada'}
+        #task.update(datos)
 
-        # Se limpia la tarea y se actualiza con los nuevos datos
-        task.clear()
-        datos = {'id': next_id, 'name': 'Tarea actualizada'}
-        task.update(datos)
+        task["name"] = datos["name"]
         # Se devuelve la tarea actualizada con un código 200.
         return jsonify(task), 200
 
