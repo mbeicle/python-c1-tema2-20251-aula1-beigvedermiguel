@@ -17,9 +17,10 @@ def test_main_home_route(client):
     response = client.get("/api/v1/")
     assert response.status_code == 200, "El código de estado debe ser 200"
     assert response.data, "La respuesta debe contener datos"
-    assert b"Bienvenida" in response.data.lower() or \
-           b"Benvinguda" in response.data.lower() or \
-           b"Welcome" in response.data.lower(), \
+    # modificado para que se pueda cumplir el assert
+    assert b"bienvenida" in response.data.lower() or \
+           b"benvinguda" in response.data.lower() or \
+           b"welcome" in response.data.lower(), \
            "La respuesta debe contener un mensaje de bienvenida"
 
 def test_main_about_route(client):
